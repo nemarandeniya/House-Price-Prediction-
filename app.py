@@ -5,6 +5,7 @@ import seaborn as sns
 from sklearn.model_selection import train_test_split
 from xgboost import XGBRegressor
 from sklearn import metrics
+import joblib
 
 houseprice_dataframe = pd.read_csv("housing.csv")
 # print(houseprice_dataframe)
@@ -27,10 +28,10 @@ houseprice_dataframe['total_bedrooms'] = houseprice_dataframe['total_bedrooms'].
 numeric_df = houseprice_dataframe.select_dtypes(include=np.number)
 correlation = numeric_df.corr()
 
-plt.figure(figsize=(10,10))
-sns.heatmap(correlation,cbar=True,square=True,fmt='.1f',annot=True,annot_kws={'size':8},cmap='Blues')
-plt.title("Housing Dataset Feature Correlation",fontsize=13)
-#plt.show()
+# plt.figure(figsize=(10,10))
+# sns.heatmap(correlation,cbar=True,square=True,fmt='.1f',annot=True,annot_kws={'size':8},cmap='Blues')
+# plt.title("Housing Dataset Feature Correlation",fontsize=13)
+# plt.show()
 
 
 # sns.heatmap() → draws the heatmap from the correlation matrix.
@@ -42,7 +43,7 @@ plt.title("Housing Dataset Feature Correlation",fontsize=13)
 # cmap='Blues' → sets a blue color scheme: darker blue → higher correlation, lighter → lower.
 
 
-X = houseprice_dataframe.drop(['price'],axis=1)
+X = houseprice_dataframe.drop(['price', 'ocean_proximity'],axis=1)#ocean proximity column eka string nisa ain kla mokda meka support int
 Y = houseprice_dataframe['price']
 
 # print(X)
@@ -52,6 +53,7 @@ Y = houseprice_dataframe['price']
 X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, random_state=2)
 print(X.shape,X_train.shape, X_test.shape)
 
+print(X_train.select_dtypes(include='object').columns)
 # Model training
 model = XGBRegressor()
 model.fit(X_train,Y_train)
@@ -87,3 +89,7 @@ plt.xlabel("Actual Prices")
 plt.ylabel("Predicted Prices")
 plt.title("Actual price vs Predicted price")
 plt.show()
+
+# save model
+joblib.dump(model,"house_model.pkl")
+print("Model trained and saved as house_model.pkl")
